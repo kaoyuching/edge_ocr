@@ -1,5 +1,11 @@
 # Edge
 
+## Dependency
+1. cuda-toolkit
+```shell=
+$ conda install nvidia/label/cuda-11.7.0::cuda-toolkit
+```
+
 ## TensorRT
 Setting environment variable `CUDA_MODULE_LOADING='LAZY'` can speed up TensorRT initialization and reduce device memory usage.
 Run TensorRT example:
