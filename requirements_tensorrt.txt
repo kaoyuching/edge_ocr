@@ -1,0 +1,4 @@
+cuda-python=11.8.2
+onnx >= 1.14.0
+tensorrt == 9.0.1.post12.dev4  # use dev version
+Cython >= 3.0.10
