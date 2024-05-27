@@ -1,3 +1,4 @@
+import re
 import numpy as np
 
 
@@ -70,3 +71,31 @@ def ctc_decode(log_probs, label2char=None, blank=0, beam_size=10):
             decoded = [label2char[l] for l in decoded]
         decoded_list.append(decoded)
     return decoded_list
+
+
+def text_add_dash(text):
+    m1 = re.match(r"^(\D\d)([0-9]+)$", text, re.I)
+    m2 = re.match(r"^(\d\D)([0-9]+)$", text, re.I)
+    m3 = re.match(r"^([0-9]{3,4})([a-z]{2,3})$", text, re.I)
+    m4 = re.match(r"^([a-z]{2,3})([0-9]{3,4})$", text, re.I)
+    m5 = re.match(r"^([0-9]{3,4})(\d\D)$", text, re.I)
+    m6 = re.match(r"^([0-9]{3,4})(\D\d)$", text, re.I)
+
+    for m_ in [m1, m2]:
+        if m_:
+            return '-'.join(m_.groups()) if len(m_.groups()[1]) < 5 else ''
+
+    m = [m3, m4, m5, m6]
+    for m_ in m:
+        if m_:
+            return '-'.join(m_.groups())
+
+    m7 = re.match(r"^((\d)\2)(\d{4})$", text)
+    m8 = re.match(r"^(\d{4})((\d)\3)$", text)
+    if m7 and m8:
+        return text
+    if m7:
+        return '-'.join(m7.groups()[0::2])
+    elif m8:
+        return '-'.join(m8.groups()[0:2])
+    return ''
