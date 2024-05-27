@@ -60,7 +60,7 @@ def load_ocr_image(img_path: str, bbox: tuple, extend_ratio: float = 1.15) -> np
     # extend box and crop image
     xmin, ymin, xmax, ymax = extend_box(bbox, ratio=extend_ratio, w=w, h=h)
     img = img[int(ymin):int(ymax), int(xmin):int(xmax)]
-    cv2.imwrite('_test123_bbox.png', img)
+    # cv2.imwrite('_test123_bbox.png', img)
     img = np.array(img)
     # stack and normalilze
     img = np.stack((img,)*3, axis=-1).astype(np.uint8)/255
