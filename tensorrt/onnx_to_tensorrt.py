@@ -18,6 +18,7 @@ $ CUDA_MODULE_LOADING='LAZY' python ./onnx_to_tensorrt.py '../onnx_models/yolov5
 parser = argparse.ArgumentParser()
 parser.add_argument('onnx_model_path', type=str, help='onnx model filepath')
 parser.add_argument('input_shape', nargs='+', type=int, help='define input data type')
+parser.add_argument('--device', type=int, default=0, help='device number')
 parser.add_argument('--memory_pool_size', type=float, default=2)
 parser.add_argument('--save_engine', action='store_true')
 parser.add_argument('--engine_filepath', type=str, default='./trt_engine.engine')
@@ -27,6 +28,7 @@ args = parser.parse_args()
 
 onnx_model_path = args.onnx_model_path
 input_shape = tuple(args.input_shape)
+device = args.device
 memory_pool_size = args.memory_pool_size
 save_engine = args.save_engine
 engine_filepath = args.engine_filepath
@@ -36,7 +38,7 @@ print('onnx model:', onnx_model_path)
 print('input shape:', input_shape)
 
 # set certain device
-set_device_success = cudart.cudaSetDevice(1)
+set_device_success = cudart.cudaSetDevice(device)
 print('set cuda device:', set_device_success)
 
 
@@ -110,8 +112,8 @@ def build_engine_from_onnx(
 engine = build_engine_from_onnx(
     onnx_model_path,
     input_shape,
-    memory_pool_size=1,
-    save_engine=True,
+    memory_pool_size=memory_pool_size,
+    save_engine=save_engine,
     engine_filepath=engine_filepath,
-    severity_value=2,
+    severity_value=severity_value,
 )
