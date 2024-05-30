@@ -17,6 +17,7 @@ trt_version = trt.__version__
 class TrtInference:
     def __init__(self, engine_filepath: str, device: int = 0):
         set_device_success = cudart.cudaSetDevice(device)
+        self.device = device
         self.engine = self._load_engine(engine_filepath)
         self.context = self.engine.create_execution_context()
         self.inputs, self.outputs, self.bindings, self.stream = trt_utils.allocate_buffers(self.engine)
@@ -42,6 +43,7 @@ class TrtInference:
         return engine
 
     def run(self, input_data: np.ndarray, to_flatten: bool = False):
+        set_device_success = cudart.cudaSetDevice(self.device)
         if to_flatten:
             input_data = input_data.ravel()
         np.copyto(self.inputs[0].host, input_data)
@@ -61,9 +63,9 @@ if __name__ == '__main__':
     LABEL2CHAR = {i + 1: char for i, char in enumerate(CHARS)}
 
     st = time.time()
-    detect_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/yolov5m.engine', device=1)
-    nms_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/nms.engine', device=1)
-    crnn_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/crnn.engine', device=1)
+    detect_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/yolov5m_A6000.engine', device=0)
+    nms_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/nms_RTX8000.engine', device=2)
+    crnn_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/crnn_RTX8000.engine', device=2)
     print('load engines:', time.time() - st)
 
     img_paths = [os.path.join("/data/data_set/doriskao/ocr_dataset/car_plate_20230325", f) for f in os.listdir("/data/data_set/doriskao/ocr_dataset/car_plate_20230325")]
