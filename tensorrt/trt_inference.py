@@ -63,12 +63,12 @@ if __name__ == '__main__':
     LABEL2CHAR = {i + 1: char for i, char in enumerate(CHARS)}
 
     st = time.time()
-    detect_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/yolov5m_A6000.engine', device=0)
-    nms_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/nms_RTX8000.engine', device=2)
-    crnn_infer = TrtInference('/home/doriskao/workspace/test_edge/tensorrt/trt_engine/crnn_RTX8000.engine', device=2)
+    detect_infer = TrtInference('../../trt_engine/yolov5s.engine', device=0)
+    nms_infer = TrtInference('../../trt_engine/nms.engine', device=0)
+    crnn_infer = TrtInference('../../trt_engine/crnn.engine', device=0)
     print('load engines:', time.time() - st)
 
-    img_paths = [os.path.join("/data/data_set/doriskao/ocr_dataset/car_plate_20230325", f) for f in os.listdir("/data/data_set/doriskao/ocr_dataset/car_plate_20230325")]
+    img_paths = [os.path.join("../../test_data", f) for f in os.listdir("../../test_data")]
     text_results = []
 
     print('Test...')
@@ -103,6 +103,6 @@ if __name__ == '__main__':
         text_results.append(text)
     print('inference time:', time.time() - st)
 
-    # with open('/home/doriskao/project/ocr/test_result_yolov5m_53trt.json', 'w') as f:
-        # res = {'filename': img_paths, 'text': text_results}
-        # json.dump(res, f)
+    with open('../../results/test_result_yolov5s_orin_trt.json', 'w') as f:
+        res = {'filename': img_paths, 'text': text_results}
+        json.dump(res, f)

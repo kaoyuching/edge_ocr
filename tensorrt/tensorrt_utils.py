@@ -131,15 +131,15 @@ def _do_inference_base(inputs, outputs, stream, execute_async_func):
     kind = cudart.cudaMemcpyKind.cudaMemcpyHostToDevice
     [cuda_call(cudart.cudaMemcpyAsync(inp.device, inp.host, inp.nbytes, kind, stream)) for inp in inputs]
     # Run inference.
-    print('Start...')
+    # print('Start...')
     execute_async_func()
-    print('Finish...')
+    # print('Finish...')
     # Transfer predictions back from the GPU.
     kind = cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
     [cuda_call(cudart.cudaMemcpyAsync(out.host, out.device, out.nbytes, kind, stream)) for out in outputs]
     # Synchronize the stream
     cuda_call(cudart.cudaStreamSynchronize(stream))
-    print('synchromize the stream')
+    # print('synchromize the stream')
     # Return only the host outputs.
     return [out.host for out in outputs]
 
@@ -151,7 +151,7 @@ def do_inference(context, engine, bindings, inputs, outputs, stream):
         context.execute_async_v3(stream_handle=stream)
     # Setup context tensor address.
     num_io = engine.num_io_tensors
-    print('number io tensors:', num_io)
+    # print('number io tensors:', num_io)
     for i in range(num_io):
         context.set_tensor_address(engine.get_tensor_name(i), bindings[i])  # tensor name, memory address
     return _do_inference_base(inputs, outputs, stream, execute_async_func)

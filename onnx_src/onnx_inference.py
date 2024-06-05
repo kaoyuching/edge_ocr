@@ -83,14 +83,14 @@ if __name__ == '__main__':
 
     st = time.time()
     device = -1
-    detect_infer = OnnxInference('/home/doriskao/workspace/test_edge/onnx_models/yolov5s.onnx', device=device)
+    detect_infer = OnnxInference('../../onnx_models/yolov5s.onnx', device=device)
     print('load yolov5')
-    nms_infer = OnnxInference('/home/doriskao/workspace/test_edge/onnx_models/yolov5_post_nms_xyxy_single.onnx', device=device)
+    nms_infer = OnnxInference('../../onnx_models/yolov5_post_nms_xyxy_single.onnx', device=device)
     print('load nms')
-    crnn_infer = OnnxInference('/home/doriskao/workspace/test_edge/onnx_models/crnn.onnx', device=device)
+    crnn_infer = OnnxInference('../../onnx_models/crnn.onnx', device=device)
     print('load sessions:', time.time() - st)
 
-    img_paths = [os.path.join("/data/data_set/doriskao/ocr_dataset/car_plate_20230325", f) for f in os.listdir("/data/data_set/doriskao/ocr_dataset/car_plate_20230325")]
+    img_paths = [os.path.join("../../test_data", f) for f in os.listdir("../../test_data")]
     text_results = []
 
     print('Test...')
@@ -124,8 +124,8 @@ if __name__ == '__main__':
         text = text.upper()
         # print('text:', text)
         text_results.append(text)
-    print('inference time', time.time() - st)
+    print('inference time:', time.time() - st)
 
-    # with open('/home/doriskao/project/ocr/test_result_yolov5m_53trt.json', 'w') as f:
-        # res = {'filename': img_paths, 'text': text_results}
-        # json.dump(res, f)
+    with open('../../results/test_result_yolov5m_orin_onnx.json', 'w') as f:
+        res = {'filename': img_paths, 'text': text_results}
+        json.dump(res, f)
