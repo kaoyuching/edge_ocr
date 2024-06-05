@@ -1,13 +1,16 @@
 import numpy as np
 import cv2
+from typing import Union
+
 
 
 # load data util functions
-def load_detect_image(img_path: str):
+def load_detect_image(img: Union[str, np.ndarray]):
     r'''
     load input image
     '''
-    img = cv2.imread(img_path)  # BGR
+    if isinstance(img, str):
+        img = cv2.imread(img)  # BGR
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # BGR -> RGB
     img_orig_shape = img.shape[:2] # h,w
     img = cv2.resize(img, (512, 512), interpolation=cv2.INTER_LINEAR)  # resize (args?)
@@ -53,8 +56,9 @@ def extend_box(bbox: tuple, ratio: float, w: int, h: int):
     return e_xmin, e_ymin, e_xmax, e_ymax
 
 
-def load_ocr_image(img_path: str, bbox: tuple, extend_ratio: float = 1.15) -> np.ndarray:
-    img = cv2.imread(img_path)  # BGR
+def load_ocr_image(img: Union[str, np.ndarray], bbox: tuple, extend_ratio: float = 1.15) -> np.ndarray:
+    if isinstance(img, str):
+        img = cv2.imread(img)  # BGR
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # BGR -> GRAY
     h, w = img.shape
     # extend box and crop image
