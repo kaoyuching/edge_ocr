@@ -1,4 +1,4 @@
 cuda-python=11.8.2
 onnx >= 1.14.0
-tensorrt == 9.0.1.post12.dev4  # use dev version
+tensorrt == 8.5.2 # jetson nano orin
 Cython >= 3.0.10
