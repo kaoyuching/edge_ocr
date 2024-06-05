@@ -8,4 +8,4 @@
 *.jpg
 test/*.pkl
 build/*
-.env
+*.env*

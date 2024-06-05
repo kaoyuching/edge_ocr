@@ -1,4 +1,0 @@
-cuda-python=11.8.2
-onnx >= 1.14.0
-tensorrt == 8.5.2 # jetson nano orin
-Cython >= 3.0.10

@@ -7,11 +7,11 @@ import atexit
 from cuda import cudart
 from typing import Generator, Iterator, Union
 
-import tensorrt_utils as trt_utils
-from utils.image_utils import load_detect_image, decode_box, load_ocr_image
-from utils.ocr_utils import ctc_decode, text_add_dash
-from utils.capture import capture_video
-from utils.base import BaseInference, UserConfig, InferConfig
+from . import tensorrt_utils as trt_utils
+from ..utils.image_utils import load_detect_image, decode_box, load_ocr_image
+from ..utils.ocr_utils import ctc_decode, text_add_dash
+from ..utils.capture import capture_video
+from ..utils.base import BaseInference, UserConfig, InferConfig
 
 
 trt_version = trt.__version__

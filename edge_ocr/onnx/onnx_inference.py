@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../tensorrt/')
-
 import os
 import json
 from typing import List
@@ -11,11 +8,12 @@ import onnx
 import onnxruntime
 from cuda import cudart
 
-from utils.image_utils import load_detect_image, decode_box, load_ocr_image
-from utils.ocr_utils import ctc_decode, text_add_dash
+from ..utils.image_utils import load_detect_image, decode_box, load_ocr_image
+from ..utils.ocr_utils import ctc_decode, text_add_dash
+from ..utils.base import BaseInference, UserConfig, InferConfig
 
 
-class OnnxInference:
+class OnnxInference(BaseInference):
     def __init__(self, engine_filepath: str, device: int = -1):
         self.device = device
         self.session = self._load_engine(engine_filepath)
