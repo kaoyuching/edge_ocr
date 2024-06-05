@@ -1,12 +1,11 @@
 import os
 import json
-from typing import List
+from typing import List, Union, Generator, Iterator
 import numpy as np
 import time
 # import atexit
 import onnx
 import onnxruntime
-from cuda import cudart
 
 from ..utils.image_utils import load_detect_image, decode_box, load_ocr_image
 from ..utils.ocr_utils import ctc_decode, text_add_dash
@@ -35,7 +34,6 @@ class OnnxInference(BaseInference):
         return session
 
     def run(self, input_data: List[np.ndarray]):
-        set_device_success = cudart.cudaSetDevice(self.device)
         if self.device == -1:
             outputs = self._run_cpu(input_data)
         else:
@@ -75,42 +73,38 @@ class OnnxInference(BaseInference):
         return outputs
 
 
-if __name__ == '__main__':
-    CHARS = '0123456789abcdefghijklmnopqrstuvwxyz'
-    LABEL2CHAR = {i + 1: char for i, char in enumerate(CHARS)}
+def onnx_inference(
+        imgsrc: Union[Generator, Iterator],
+        user_config: UserConfig,
+        config: InferConfig = InferConfig(),
+        ):
+    LABEL2CHAR = {i + 1: char for i, char in enumerate(config.chars)}
 
     st = time.time()
-    device = -1
-    detect_infer = OnnxInference('../../onnx_models/yolov5s.onnx', device=device)
+    device = -1 # CPU
+    detect_infer = OnnxInference(user_config.detect_model_path, device=device)
     print('load yolov5')
-    nms_infer = OnnxInference('../../onnx_models/yolov5_post_nms_xyxy_single.onnx', device=device)
+    nms_infer = OnnxInference(user_config.nms_model_path, device=device)
     print('load nms')
-    crnn_infer = OnnxInference('../../onnx_models/crnn.onnx', device=device)
+    crnn_infer = OnnxInference(user_config.crnn_model_path, device=device)
     print('load sessions:', time.time() - st)
 
-    img_paths = [os.path.join("../../test_data", f) for f in os.listdir("../../test_data")]
-    text_results = []
-
-    print('Test...')
-    st = time.time()
-    for img_path in img_paths:
-        # img_path = '/data/data_set/doriskao/ocr_dataset/car_plate_20230325/011a65e23a51dd846c0e698d8cf6e52a13431970.png'
+    for img in imgsrc:
         # data preprocess
-        input_data, img_orig_shape, img_shape = load_detect_image(img_path)
+        input_data, img_orig_shape, img_shape = load_detect_image(img)
 
         detect_res = detect_infer.run(input_data)  # shape: (1, 16128, 6) / effdetd0: (1, 9, 64, 64)
         bbox_pred = nms_infer.run(detect_res[0][0])  # the output should be decoded (rescale to original shape)
         bbox_pred = bbox_pred[0].reshape(10, 6)
 
-        bbox_threshold = 0.15
-        valid_box = np.where(bbox_pred[:, 4] > bbox_threshold)[0]
+        valid_box = np.where(bbox_pred[:, 4] > config.bbox_threshold)[0]
         rescale_output = decode_box(bbox_pred[valid_box, :], img_shape, img_orig_shape)
 
         if len(rescale_output) <= 0:
             text = ''
         else:
             bbox = rescale_output[0, :4]
-            input_data_ocr = load_ocr_image(img_path, bbox, extend_ratio=1.15)
+            input_data_ocr = load_ocr_image(img, bbox, extend_ratio=1.15)
             ocr_pred = crnn_infer.run(input_data_ocr)
             ocr_pred = ocr_pred[0]  # shape (32, 1, 37)
 
@@ -120,10 +114,4 @@ if __name__ == '__main__':
             if len(text) <= 3:
                 text = ''
         text = text.upper()
-        # print('text:', text)
-        text_results.append(text)
-    print('inference time:', time.time() - st)
-
-    with open('../../results/test_result_yolov5m_orin_onnx.json', 'w') as f:
-        res = {'filename': img_paths, 'text': text_results}
-        json.dump(res, f)
+        yield text
