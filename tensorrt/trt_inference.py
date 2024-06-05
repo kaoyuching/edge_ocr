@@ -5,16 +5,19 @@ import time
 import tensorrt as trt
 import atexit
 from cuda import cudart
+from typing import Generator, Iterator, Union
 
 import tensorrt_utils as trt_utils
 from utils.image_utils import load_detect_image, decode_box, load_ocr_image
 from utils.ocr_utils import ctc_decode, text_add_dash
+from utils.capture import capture_video
+from utils.base import BaseInference, UserConfig, InferConfig
 
 
 trt_version = trt.__version__
 
 
-class TrtInference:
+class TrtInference(BaseInference):
     def __init__(self, engine_filepath: str, device: int = 0):
         set_device_success = cudart.cudaSetDevice(device)
         self.device = device
@@ -58,39 +61,35 @@ class TrtInference:
         return trt_outputs
 
 
-if __name__ == '__main__':
-    CHARS = '0123456789abcdefghijklmnopqrstuvwxyz'
-    LABEL2CHAR = {i + 1: char for i, char in enumerate(CHARS)}
+def trt_inference(
+        imgsrc: Union[Generator, Iterator],
+        user_config: UserConfig,
+        config: InferConfig = InferConfig(),
+        ):
+    LABEL2CHAR = {i + 1: char for i, char in enumerate(config.chars)}
 
     st = time.time()
-    detect_infer = TrtInference('../../trt_engine/yolov5s.engine', device=0)
-    nms_infer = TrtInference('../../trt_engine/nms.engine', device=0)
-    crnn_infer = TrtInference('../../trt_engine/crnn.engine', device=0)
+    detect_infer = TrtInference(user_config.detect_model_path, device=0)
+    nms_infer = TrtInference(user_config.nms_model_path, device=0)
+    crnn_infer = TrtInference(user_config.crnn_model_path, device=0)
     print('load engines:', time.time() - st)
 
-    img_paths = [os.path.join("../../test_data", f) for f in os.listdir("../../test_data")]
-    text_results = []
-
-    print('Test...')
-    st = time.time()
-    for img_path in img_paths:
-        # img_path = '/data/data_set/doriskao/ocr_dataset/car_plate_20230325/011a65e23a51dd846c0e698d8cf6e52a13431970.png'
+    for img in imgsrc:
         # data preprocess
-        input_data, img_orig_shape, img_shape = load_detect_image(img_path)
+        input_data, img_orig_shape, img_shape = load_detect_image(img)
 
         detect_res = detect_infer.run(input_data, to_flatten=True)
         bbox_pred = nms_infer.run(detect_res[0], to_flatten=False)  # the output should be decoded (rescale to original shape)
         bbox_pred = bbox_pred[0].reshape(10, 6)
 
-        bbox_threshold = 0.15
-        valid_box = np.where(bbox_pred[:, 4] > bbox_threshold)[0]
+        valid_box = np.where(bbox_pred[:, 4] > config.bbox_threshold)[0]
         rescale_output = decode_box(bbox_pred[valid_box, :], img_shape, img_orig_shape)
 
         if len(rescale_output) <= 0:
             text = ''
         else:
             bbox = rescale_output[0, :4]
-            input_data_ocr = load_ocr_image(img_path, bbox, extend_ratio=1.15)
+            input_data_ocr = load_ocr_image(img, bbox, extend_ratio=1.15)
             ocr_pred = crnn_infer.run(input_data_ocr, to_flatten=True)
             ocr_pred = ocr_pred[0].reshape(32, 1, 37)
 
@@ -100,9 +99,6 @@ if __name__ == '__main__':
             if len(text) <= 3:
                 text = ''
         text = text.upper()
-        text_results.append(text)
-    print('inference time:', time.time() - st)
+        yield text
 
-    with open('../../results/test_result_yolov5s_orin_trt.json', 'w') as f:
-        res = {'filename': img_paths, 'text': text_results}
-        json.dump(res, f)
+
