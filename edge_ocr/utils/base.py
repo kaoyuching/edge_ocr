@@ -6,6 +6,7 @@ from pydantic import BaseSettings
 class InferConfig(BaseSettings):
     chars = '0123456789abcdefghijklmnopqrstuvwxyz'
     bbox_threshold = 0.15
+    device = 0
 
     class Config:
         case_insensitive = False
