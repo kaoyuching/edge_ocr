@@ -1,14 +1,16 @@
 import os
 from edge_ocr.tensorrt.trt_inference import trt_inference
-from edge_ocr.utils.base import UserConfig
+from edge_ocr.utils.base import UserConfig, InferConfig
 
 
 if __name__ == '__main__':
     user_config = UserConfig('trt.env')
-    imgsrc = [os.path.join("../test_data", f) for f in os.listdir("../test_data")]
+    infer_config = InferConfig(device=1)
+    img_dir = "/data/data_set/doriskao/ocr_dataset/car_plate_20230325"
+    imgsrc = [os.path.join(img_dir, f) for f in os.listdir(img_dir)][:10]
 
     text_results = []
-    for path, bbox, res in trt_inference(imgsrc, user_config):
+    for path, bbox, res in trt_inference(imgsrc, user_config, config=infer_config):
         print(path, bbox, res)
         text_results.append(res)
 
