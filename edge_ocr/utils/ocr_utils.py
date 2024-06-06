@@ -74,28 +74,30 @@ def ctc_decode(log_probs, label2char=None, blank=0, beam_size=10):
 
 
 def text_add_dash(text):
-    m1 = re.match(r"^(\D\d)([0-9]+)$", text, re.I)
-    m2 = re.match(r"^(\d\D)([0-9]+)$", text, re.I)
-    m3 = re.match(r"^([0-9]{3,4})([a-z]{2,3})$", text, re.I)
-    m4 = re.match(r"^([a-z]{2,3})([0-9]{3,4})$", text, re.I)
-    m5 = re.match(r"^([0-9]{3,4})(\d\D)$", text, re.I)
-    m6 = re.match(r"^([0-9]{3,4})(\D\d)$", text, re.I)
+    rules = [
+        r"^(\D\d)([0-9]{2,4})$",  # A1-01, A1-001, A1-0001
+        r"^(\d\D)([0-9]{2,4})$",  # 1A-01, 1A-001, 1A-0001
+        r"^([0-9]{3,4})([a-z]{2})$",  # 001-AA, 0001-AA
+        r"^([0-9]{3})([a-z]{3})$",  # 001-AAA
+        r"^([0-9]{2})([a-z]{2})$",  # 01-AA
+        r"^([a-z]{2})([0-9]{2,4})$",  # AA-01, AA-001, AA-0001
+        r"^([a-z]{3})([0-9]{3,4})$",  # AAA-001, AAA-0001
+        r"^([0-9]{3,4})(\d\D)$",  # 001-1A, 0001-1A
+        r"^([0-9]{3,4})(\D\d)$",  # 001-A1, 0001-A1
+        r"^([0-9]{1}\D{2})(\d{3})$",  # 1AA-001
+        r"^(\d{3})(\d{4})$",  # 001-0001 [1984/11-1992]
+        r"^(\d{2})(\d{4})$",  # 01-0001 [1979-1984]
+        r"^(\d{3})(\d{3})$",  # 001-001 [1981]
 
-    for m_ in [m1, m2]:
-        if m_:
-            return '-'.join(m_.groups()) if len(m_.groups()[1]) < 5 else ''
+    ]
 
-    m = [m3, m4, m5, m6]
-    for m_ in m:
-        if m_:
-            return '-'.join(m_.groups())
+    for rule in rules:
+        m = re.match(rule, text, re.I)
+        if m:
+            return '-'.join(m.groups())
 
-    m7 = re.match(r"^((\d)\2)(\d{4})$", text)
-    m8 = re.match(r"^(\d{4})((\d)\3)$", text)
-    if m7 and m8:
+    # 微型電動二輪車
+    if re.match(r"^(\D{2})(\d{5})$", text, re.I):
         return text
-    if m7:
-        return '-'.join(m7.groups()[0::2])
-    elif m8:
-        return '-'.join(m8.groups()[0:2])
-    return ''
+    else:
+        return ''
