@@ -69,9 +69,9 @@ def trt_inference(
     LABEL2CHAR = {i + 1: char for i, char in enumerate(config.chars)}
 
     st = time.time()
-    detect_infer = TrtInference(user_config.detect_model_path, device=0)
-    nms_infer = TrtInference(user_config.nms_model_path, device=0)
-    crnn_infer = TrtInference(user_config.crnn_model_path, device=0)
+    detect_infer = TrtInference(user_config.detect_model_path, device=config.device)
+    nms_infer = TrtInference(user_config.nms_model_path, device=config.device)
+    crnn_infer = TrtInference(user_config.crnn_model_path, device=config.device)
     print('load engines:', time.time() - st)
 
     for img in imgsrc:
