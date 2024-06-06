@@ -27,8 +27,12 @@ class OnnxInference(BaseInference):
         else:
             providers = ['CPUExecutionProvider']
 
+        # disable the memory pattern optimization to avoid getting wrong result after second run
+        sess_options = onnxruntime.SessionOptions()
+        sess_options.enable_mem_pattern = False
         session = onnxruntime.InferenceSession(
             engine_filepath,
+            sess_options=sess_options,
             providers=providers,
         )
         return session
