@@ -8,8 +8,8 @@ if __name__ == '__main__':
     imgsrc = [os.path.join("../test_data", f) for f in os.listdir("../test_data")]
 
     text_results = []
-    for res in trt_inference(imgsrc, user_config):
-        print(res)
+    for path, bbox, res in trt_inference(imgsrc, user_config):
+        print(path, bbox, res)
         text_results.append(res)
 
     # with open('../results/test_result_yolov5m_orin_trt.json', 'w') as f:

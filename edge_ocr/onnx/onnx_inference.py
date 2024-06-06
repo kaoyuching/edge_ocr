@@ -101,9 +101,9 @@ def onnx_inference(
         rescale_output = decode_box(bbox_pred[valid_box, :], img_shape, img_orig_shape)
 
         if len(rescale_output) <= 0:
-            text = ''
+            yield img, None, ''
         else:
-            bbox = rescale_output[0, :4]
+            bbox = rescale_output[0, :4] # xyxy
             input_data_ocr = load_ocr_image(img, bbox, extend_ratio=1.15)
             ocr_pred = crnn_infer.run(input_data_ocr)
             ocr_pred = ocr_pred[0]  # shape (32, 1, 37)
@@ -113,5 +113,5 @@ def onnx_inference(
             text = text_add_dash(text)
             if len(text) <= 3:
                 text = ''
-        text = text.upper()
-        yield text
+            text = text.upper()
+            yield img, bbox.astype(np.int64), text
