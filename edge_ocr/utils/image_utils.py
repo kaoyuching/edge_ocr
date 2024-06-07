@@ -72,3 +72,11 @@ def load_ocr_image(img: Union[str, np.ndarray], bbox: tuple, extend_ratio: float
     img = cv2.resize(img, (512, 64), interpolation=cv2.INTER_LINEAR)  # resize (w, h)
     img = np.expand_dims(np.transpose(img, (2, 0, 1)), axis=0)  # (n, c, h, w)
     return img.astype(np.float32)
+
+
+def add_bbox_to_frame(frame: np.ndarray, bbox, extend_ratio: float = 1.15) -> np.ndarray:
+    frame = frame.copy()
+    h, w, _ = frame.shape
+    bbox = [int(x) for x in extend_box(bbox, ratio=extend_ratio, w=w, h=h)]
+    cv2.rectangle(frame, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2)
+    return frame
