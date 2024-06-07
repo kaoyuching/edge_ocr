@@ -16,9 +16,11 @@ def capture_video(video_id: int, inference_rate: float, display: bool = True) ->
     i = 0
     while True:
         i += 1
-        # Capture the video frame
-        # by frame
-        ret, frame = vid.read()
+        # Capture the video frame by frame
+        ret = vid.grab()
+        if (i % k) != 0 or not ret:
+            continue
+        _, frame = vid.retrieve()
 
         # Display the resulting frame
         if display:
@@ -29,8 +31,6 @@ def capture_video(video_id: int, inference_rate: float, display: bool = True) ->
         # desired button of your choice
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        if i % k != 0 or not ret:
-            continue
         yield frame
 
     # After the loop release the cap object
