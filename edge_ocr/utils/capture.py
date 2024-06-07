@@ -10,9 +10,11 @@ def capture_video(video_id: int, inference_rate: Optional[float], display: bool 
     fps = vid.get(cv2.CAP_PROP_FPS)
     print('FPS: ', fps)
 
-    if inference_rate is None or inference_rate > fps:
+    if fps == 0:
+        inference_rate = 1
+    elif inference_rate is None or inference_rate > fps:
         inference_rate = fps
-    k = int(fps / inference_rate) # FPS?
+    k = int(fps / inference_rate) if fps > 0 else 1
     i = 0
     while True:
         i += 1
