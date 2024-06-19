@@ -1,4 +1,6 @@
 import abc
+from typing import Optional
+
 import numpy as np
 from pydantic import BaseSettings
 
@@ -16,6 +18,7 @@ class UserConfig(BaseSettings):
     detect_model_path: str
     nms_model_path: str
     crnn_model_path: str
+    data_dir: Optional[str] = None
 
     class Config:
         orm_mode=True

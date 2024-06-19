@@ -5,7 +5,7 @@ from edge_ocr.utils.base import UserConfig
 
 if __name__ == '__main__':
     user_config = UserConfig('trt.env')
-    imgsrc = [os.path.join("../test_data", f) for f in os.listdir("../test_data")]
+    imgsrc = [os.path.join(user_config.data_dir, f) for f in os.listdir(user_config.data_dir)]
 
     text_results = []
     for path, bbox, res in trt_inference(imgsrc, user_config):
