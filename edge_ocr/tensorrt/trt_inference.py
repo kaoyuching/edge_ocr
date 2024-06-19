@@ -2,6 +2,7 @@ import os
 import json
 import numpy as np
 import time
+from packaging.version import Version
 import tensorrt as trt
 import atexit
 from cuda import cudart
@@ -39,7 +40,7 @@ class TrtInference(BaseInference):
             engine_bytes = f.read()
 
         runtime = trt.Runtime(logger)
-        if trt_version >= '9.0':
+        if Version(trt_version) >= Version('9.0'):
             # Indicate to TensorRT that you trust the plan
             runtime.engine_host_code_allowed = True  # after version 9.0
         engine = runtime.deserialize_cuda_engine(engine_bytes)  # return ICudaEngine

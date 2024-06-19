@@ -1,6 +1,7 @@
 import argparse
 from typing import Tuple, List
 import time
+from packaging.version import Version
 import atexit
 import numpy as np
 
@@ -69,7 +70,7 @@ def build_engine_from_onnx(
     # parse onnx model
     onnx_model = onnx.load(onnx_model_path)
     parser = trt.OnnxParser(network, logger)
-    if trt_version >= '8.6':
+    if Version(trt_version) >= Version('8.6'):
         parser.set_flag(trt.OnnxParserFlag.NATIVE_INSTANCENORM)  # tensorrt >= v8.6
     parse_success = parser.parse(onnx_model.SerializeToString())
     # parse_success = parser.parse_from_file(onnx_model_path)
@@ -85,7 +86,7 @@ def build_engine_from_onnx(
     builder_config = builder.create_builder_config()
     pool_type = trt.MemoryPoolType.WORKSPACE
     builder_config.set_memory_pool_limit(pool_type, int(memory_pool_size * 1e9))
-    if trt_version >= '9.0':
+    if Version(trt_version) >= Version('9.0'):
         # create a version-compatible engine
         builder_config.set_flag(trt.BuilderFlag.VERSION_COMPATIBLE)  # tensorrt >= version9.0
     builder_config.flags = 1 << int(trt.BuilderFlag.STRICT_TYPES)
@@ -97,7 +98,7 @@ def build_engine_from_onnx(
     # create an engine from a builder
     engine_bytes = builder.build_serialized_network(network, builder_config)  # return IHostMemory
     runtime = trt.Runtime(logger)
-    if trt_version >= '9.0':
+    if Version(trt_version) >= Version('9.0'):
         # Indicate to TensorRT that you trust the plan
         runtime.engine_host_code_allowed = True  # after version 9.0
     engine = runtime.deserialize_cuda_engine(engine_bytes)  # return ICudaEngine
