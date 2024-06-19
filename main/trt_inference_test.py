@@ -1,6 +1,6 @@
 import os
 from edge_ocr.tensorrt.trt_inference import trt_inference
-from edge_ocr.utils.base import UserConfig
+from edge_ocr.utils.base import UserConfig, InferConfig
 
 
 if __name__ == '__main__':
