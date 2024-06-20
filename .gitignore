@@ -9,3 +9,5 @@
 test/*.pkl
 build/*
 *.env*
+*.onnx
+*.engine
