@@ -11,3 +11,6 @@ build/*
 *.env*
 *.onnx
 *.engine
+*.xml
+*.bin
+*.json

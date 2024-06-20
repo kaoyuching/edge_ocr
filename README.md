@@ -41,6 +41,8 @@ $ CUDA_MODULE_LOADING='LAZY' python ./main/onnx_to_tensorrt.py \
     --engine_filepath <output path>
 ```
 
+### OpenVINO
+
 ## Install
 
 ```
@@ -57,6 +59,12 @@ $ pip install -e .[tensorrt]
 
 ```
 $ pip install -e .[onnx]
+```
+
+### With OpenVINO
+
+```
+$ pip install -e .[openvino]
 ```
 
 ## Run inference
@@ -77,9 +85,18 @@ $ pip install -e .[onnx]
     $ python ./main/onnx_inference_video.py
     ```
 
+### Video with OpenVINO (CPU)
+1. Setup openvino models path (`.xml`) to `openvino.env`, make sure the `.bin` file are in the same folder
+2. Run
+
+    ```
+    $ python ./main/openvino_inference_video.py
+    ```
+
 ## Reference
 1. NVIDIA TensorRT documentation: https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html
 2. TensorRT python API documentation (v10.0.1): https://docs.nvidia.com/deeplearning/tensorrt/api/python_api/index.html
 3. TensorRT python API documentation (v8.5.2): https://docs.nvidia.com/deeplearning/tensorrt/archives/tensorrt-852/api/python_api/index.html
 4. TensorRT python API documentation (v7.3.1): https://docs.nvidia.com/deeplearning/tensorrt/archives/tensorrt-713/api/python_api/index.html
 5. NVIDIA TensorRT release notes: https://docs.nvidia.com/deeplearning/tensorrt/release-notes/index.html
+6. OpenVINO documentation: https://docs.openvino.ai/2022.3/notebooks/002-openvino-api-with-output.html

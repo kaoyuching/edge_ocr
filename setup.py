@@ -40,6 +40,7 @@ setup(
     extras_require={
         'onnx': get_requirements(['requirements/onnx.txt', 'requirements/basic.txt']),
         'tensorrt': get_requirements(['requirements/tensorrt.txt', 'requirements/basic.txt']),
+        'openvino': get_requirements(['requirements/openvino.txt', 'requirements/basic.txt'])
     },
     packages=find_packages(exclude=['main']),
 )
