@@ -1,5 +1,6 @@
 #Cython>=3.0.10
 cuda-python==11.8.2
-onnx>=1.14.0
 # jetson nano orin
-tensorrt==8.5.2
+tensorrt>=8.5.2
+# jetson nano orin: tensorrt==8.5.2
+# server: tensorrt>=10.1.0

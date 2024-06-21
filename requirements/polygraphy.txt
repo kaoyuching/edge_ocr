@@ -1,2 +1,3 @@
+tensorrt>=10.1.0 # should be installed with --no-cache-dir
 polygraphy==0.49.10 # not published yet
 colored
