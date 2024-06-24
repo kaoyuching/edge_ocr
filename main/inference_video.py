@@ -6,16 +6,13 @@ from edge_ocr.backends import (
     tensorrt_inference,
     polygraphy_inference,
 )
-from edge_ocr.configs import UserConfig
 from edge_ocr.ocr import YoloV5OCR
 from edge_ocr.utils.capture import capture_video
 from edge_ocr.utils.image_utils import add_bbox_to_frame
+from edge_ocr.configs import UserConfig
 
 
-def main(config_file: str = '.env'):
-    UserConfig.model_config['config_file'] = config_file
-    user_config = UserConfig()
-
+def main(user_config: UserConfig):
     assert user_config.data.src == 'video'
 
     imgsrc = capture_video(
@@ -37,4 +34,17 @@ def main(config_file: str = '.env'):
 
 
 if __name__ == '__main__':
-    main()
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument('-c', '--config-file', default='.env')
+    args = parser.parse_args()
+
+    config_file = args.config_file
+    if os.path.splitext(config_file)[-1] in ['.ini', '.toml', '.json', '.yml']:
+        UserConfig.model_config['config_file'] = config_file
+    else:
+        UserConfig.model_config['env_file'] = config_file
+    UserConfig.model_config['config_file'] = config_file
+    user_config = UserConfig()
+
+    main(user_config)
