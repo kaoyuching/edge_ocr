@@ -1,14 +1,19 @@
 import os
 from collections import OrderedDict
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Literal
 
 import numpy as np
 from openvino.runtime import Core
 
-from .base import BaseModelInference
+from . import register_backend
+from .base import BaseInferenceBackend, BaseBackendConfig
 
 
-class OpenvinoModelInference(BaseModelInference):
+__all__ = ['OpenvinoInferenceBackend', 'OpenvinoBackendConfig']
+
+
+class OpenvinoInferenceBackend(BaseInferenceBackend):
+    backend_name = 'openvino'
     _model_type = 'openvino compiled model'
 
     def __init__(self, model_xml_path: str, device: str = 'CPU'):
@@ -32,3 +37,12 @@ class OpenvinoModelInference(BaseModelInference):
             input_data: Union[Dict[str, np.ndarray], List[np.ndarray]],
             ) -> 'OrderedDict[str, np.ndarray]':
         return self.compiled_model(input_data)
+
+
+class OpenvinoBackendConfig(BaseBackendConfig):
+    _backend_cls = OpenvinoInferenceBackend
+    backend: Literal['openvino'] = 'openvino'
+    device: str = 'CPU'
+
+
+register_backend(OpenvinoInferenceBackend, OpenvinoBackendConfig)

@@ -1,29 +1,35 @@
 import logging
 import traceback
 from collections import OrderedDict
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Literal
 
 import numpy as np
+from cuda import cudart
+from pydantic import Field
 from polygraphy.backend.common import BytesFromPath
 from polygraphy.backend.trt import EngineFromBytes, TrtRunner
 
-from .base import BaseModelInference
+from . import register_backend
+from .base import BaseInferenceBackend, BaseBackendConfig
 
+
+__all__ = ['PolygraphyInferenceBackend', 'PolygraphyBackendConfig']
 
 logger = logging.getLogger(__name__)
 
 
-class PolygraphyModelInference(BaseModelInference):
+class PolygraphyInferenceBackend(BaseInferenceBackend):
+    backend_name = 'polygraphy'
     _model_type = 'tensorrt engine'
 
-    def __init__(self, model_path: str, device: int = -1):
+    def __init__(self, model_path: str, device: int = 0):
         super().__init__(model_path)
         self.device = device
         self.engine = None
         self.engine_runner = None
 
     def _load_model(self):
-        # TODO: device
+        set_device_success = cudart.cudaSetDevice(self.device)
         self.engine = EngineFromBytes(BytesFromPath(self.model_path))()
         self.engine_runner = TrtRunner(self.engine)
 
@@ -36,6 +42,8 @@ class PolygraphyModelInference(BaseModelInference):
                 k: np.zeros(metadata.shape, dtype=metadata.dtype)
                 for k, metadata in input_metadata.items()
             }
+        except KeyboardInterrupt:
+            raise
         except Exception as e:
             logger.warn('Fail to run dummy inputs, skip.')
             logger.debug(traceback.format_exc())
@@ -46,6 +54,19 @@ class PolygraphyModelInference(BaseModelInference):
     def _run(self,
             input_data: Union[Dict[str, np.ndarray], List[np.ndarray]],
             ) -> 'OrderedDict[str, np.ndarray]':
+        set_device_success = cudart.cudaSetDevice(self.device)
         if isinstance(input_data, list):
-            input_data = {self.engine.get_tensor_name(i): data for i, data in enumerate(input_data)}
+            input_data = {
+                self.engine.get_tensor_name(i): data
+                for i, data in enumerate(input_data)
+            }
         return self.engine_runner.infer(input_data)
+
+
+class PolygraphyBackendConfig(BaseBackendConfig):
+    _backend_cls = PolygraphyInferenceBackend
+    backend: Literal['polygraphy'] = 'polygraphy'
+    device: int = Field(0, ge=0)
+
+
+register_backend(PolygraphyInferenceBackend, PolygraphyBackendConfig)

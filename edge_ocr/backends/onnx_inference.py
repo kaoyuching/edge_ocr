@@ -1,14 +1,19 @@
 from collections import OrderedDict
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Literal
 
 import numpy as np
 import onnx
 import onnxruntime
 
-from .base import BaseModelInference
+from . import register_backend
+from .base import BaseInferenceBackend, BaseBackendConfig
 
 
-class OnnxModelInference(BaseModelInference):
+__all__ = ['OnnxInferenceBackend', 'OnnxBackendConfig']
+
+
+class OnnxInferenceBackend(BaseInferenceBackend):
+    backend_name = 'onnx'
     _model_type = 'onnx session'
 
     def __init__(self, model_path: str, device: int = -1):
@@ -90,3 +95,12 @@ class OnnxModelInference(BaseModelInference):
         self.session.run_with_iobinding(io_binding)
         outputs = io_binding.copy_outputs_to_cpu()
         return self._handle_outputs(output_data)
+
+
+class OnnxBackendConfig(BaseBackendConfig):
+    _backend_cls = OnnxInferenceBackend
+    backend: Literal['onnx'] = 'onnx'
+    device: int = -1
+
+
+register_backend(OnnxInferenceBackend, OnnxBackendConfig)

@@ -1,21 +1,26 @@
 import logging
 import traceback
 from collections import OrderedDict
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Literal
 
 import numpy as np
 import tensorrt as trt
+from pydantic import Field
 from packaging.version import Version
 from cuda import cudart
 
-from .base import BaseModelInference
 from . import tensorrt_utils as trt_utils
+from . import register_backend
+from .base import BaseInferenceBackend, BaseBackendConfig
 
+
+__all__ = ['TensorrtInferenceBackend', 'TensorrtBackendConfig']
 
 logger = logging.getLogger(__name__)
 
 
-class TensorrtModelInference(BaseModelInference):
+class TensorrtInferenceBackend(BaseInferenceBackend):
+    backend_name = 'tensorrt'
     _model_type = 'tensorrt engine'
 
     def __init__(self, model_path: str, device: int = 0, severity_value: int = 2):
@@ -108,3 +113,12 @@ class TensorrtModelInference(BaseModelInference):
             for k, output in zip(self.output_names, outputs)
         ])
         return outputs
+
+
+class TensorrtBackendConfig(BaseBackendConfig):
+    _backend_cls = TensorrtInferenceBackend
+    backend: Literal['tensorrt'] = 'tensorrt'
+    device: int = Field(0, ge=0)
+
+
+register_backend(TensorrtInferenceBackend, TensorrtBackendConfig)

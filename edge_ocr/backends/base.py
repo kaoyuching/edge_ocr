@@ -1,12 +1,15 @@
+import os
 import abc
 import time
 from collections import OrderedDict
-from typing import Any, List, Dict, Optional, Union
+from typing import Any, List, Dict, Optional, Union, Type
 
 import numpy as np
+from pydantic import BaseModel, validator
 
 
-class BaseModelInference(abc.ABC):
+class BaseInferenceBackend(abc.ABC):
+    backend_name: str
     _is_active: bool = False
     _is_loaded: bool = False
     _model_type: Optional[str] = None
@@ -61,8 +64,25 @@ class BaseModelInference(abc.ABC):
         raise NotImplementedError()
 
 
-class MultiModelInference(abc.ABC):
-    def __init__(self, models: Union[Dict[Any, BaseModelInference], List[BaseModelInference]]):
+class BaseBackendConfig(BaseModel):
+    _backend_cls: Type[BaseInferenceBackend]
+    backend: str # discriminator
+    path: str
+
+    @validator('path')
+    def validate_path(cls, value):
+        assert os.path.isfile(value), f'{value} is not a file'
+        return value
+
+    def get_backend(self):
+        kwargs = self.dict()
+        assert kwargs.pop('backend') == self._backend_cls.backend_name
+        model_path = kwargs.pop('path')
+        return self._backend_cls(model_path, **kwargs)
+
+
+class MultiInferenceBackend(abc.ABC):
+    def __init__(self, models: Union[Dict[Any, BaseInferenceBackend], List[BaseInferenceBackend]]):
         self.models = models
 
     @property

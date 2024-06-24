@@ -4,21 +4,28 @@ import traceback
 from typing import Generator, Iterator, Union, Optional
 
 import numpy as np
+from pydantic import BaseModel, Field
 
-from .backends.base import BaseModelInference, MultiModelInference
-from .utils.base import InferConfig
+from .backends.base import BaseInferenceBackend, MultiInferenceBackend
 from .utils.image_utils import load_detect_image, decode_box, load_ocr_image
 from .utils.ocr_utils import ctc_decode, text_add_dash
 
 
+__all__ = ['YoloV5OCR', 'InferConfig', 'YoloV5OCRConfig']
+
 logger = logging.getLogger(__name__)
 
 
-class YoloV5OCR(MultiModelInference):
+class InferConfig(BaseModel):
+    chars: str = '0123456789abcdefghijklmnopqrstuvwxyz'
+    bbox_threshold: float = 0.15
+
+
+class YoloV5OCR(MultiInferenceBackend):
     def __init__(self,
-            detect_model: BaseModelInference,
-            nms_model: BaseModelInference,
-            crnn_model: BaseModelInference,
+            detect_model: BaseInferenceBackend,
+            nms_model: BaseInferenceBackend,
+            crnn_model: BaseInferenceBackend,
             infer_config: InferConfig = InferConfig(),
             ):
         super().__init__({'detect': detect_model, 'nms': nms_model, 'crnn': crnn_model})
