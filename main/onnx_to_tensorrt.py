@@ -24,6 +24,7 @@ parser.add_argument('--memory_pool_size', type=float, default=2)
 parser.add_argument('--save_engine', action='store_true')
 parser.add_argument('--engine_filepath', type=str, default='./trt_engine.engine')
 parser.add_argument('--severity_value', type=int, default=2)
+parser.add_argument('--version_compatible', action='store_true')
 args = parser.parse_args()
 
 
@@ -34,6 +35,7 @@ memory_pool_size = args.memory_pool_size
 save_engine = args.save_engine
 engine_filepath = args.engine_filepath
 severity_value = args.severity_value
+version_compatible = args.version_compatible
 
 print('onnx model:', onnx_model_path)
 print('input shape:', input_shape)
@@ -50,6 +52,7 @@ def build_engine_from_onnx(
     save_engine: bool = False,
     engine_filepath: str = './trt_engine.engine',
     severity_value: int = 2,
+    version_compatible: bool = False,
 ):
     r'''
         - onnx_model_path (str): the onnx model path.
@@ -86,10 +89,11 @@ def build_engine_from_onnx(
     builder_config = builder.create_builder_config()
     pool_type = trt.MemoryPoolType.WORKSPACE
     builder_config.set_memory_pool_limit(pool_type, int(memory_pool_size * 1e9))
-    if Version(trt_version) >= Version('9.0'):
+    if version_compatible and Version(trt_version) >= Version('9.0'):
         # create a version-compatible engine
         builder_config.set_flag(trt.BuilderFlag.VERSION_COMPATIBLE)  # tensorrt >= version9.0
-    builder_config.flags = 1 << int(trt.BuilderFlag.STRICT_TYPES)
+    if Version(trt_version) < Version('10.0'):
+        builder_config.flags = 1 << int(trt.BuilderFlag.STRICT_TYPES)
     # add optimization profile
     is_valid = builder_config.add_optimization_profile(profile)
     if is_valid == -1:
@@ -117,4 +121,5 @@ engine = build_engine_from_onnx(
     save_engine=save_engine,
     engine_filepath=engine_filepath,
     severity_value=severity_value,
+    version_compatible=version_compatible,
 )
