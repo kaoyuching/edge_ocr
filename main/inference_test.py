@@ -1,12 +1,23 @@
 import os
 import json
 
-from edge_ocr.backends import (
-    onnx_inference,
-    openvino_inference,
-    tensorrt_inference,
-    polygraphy_inference,
-)
+try:
+    from edge_ocr.backends import onnx_inference
+except ImportError:
+    pass
+try:
+    from edge_ocr.backends import openvino_inference
+except ImportError:
+    pass
+try:
+    from edge_ocr.backends import tensorrt_inference
+except ImportError:
+    pass
+try:
+    from edge_ocr.backends import polygraphy_inference
+except ImportError:
+    pass
+
 from edge_ocr.ocr import YoloV5OCR
 from edge_ocr.configs import UserConfig
 

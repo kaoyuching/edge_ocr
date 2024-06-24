@@ -1,11 +1,22 @@
 import cv2
 
-from edge_ocr.backends import (
-    onnx_inference,
-    openvino_inference,
-    tensorrt_inference,
-    polygraphy_inference,
-)
+try:
+    from edge_ocr.backends import onnx_inference
+except ImportError:
+    pass
+try:
+    from edge_ocr.backends import openvino_inference
+except ImportError:
+    pass
+try:
+    from edge_ocr.backends import tensorrt_inference
+except ImportError:
+    pass
+try:
+    from edge_ocr.backends import polygraphy_inference
+except ImportError:
+    pass
+
 from edge_ocr.ocr import YoloV5OCR
 from edge_ocr.utils.capture import capture_video
 from edge_ocr.utils.image_utils import add_bbox_to_frame
