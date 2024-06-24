@@ -51,15 +51,71 @@ $ pip install -e .
 
 ### With TensorRT
 
+`TensorRT` version highly depends on your platform:
+
+- Jetson Orin Nano (Jetpack-5.1.2)
+
+    ```
+    $ pip install tensorrt==8.5.2
+    ```
+
+- Otherwise
+
+    ```
+    $ pip install tensorrt==10.1.0 --no-cache-dir
+    ```
+
+#### Using polygraphy
+
+If you want to run with `polygraph` (a TensorRT tool), you need to install by following commands
+
+1. Clone TensorRT repository from [https://github.com/NVIDIA/TensorRT/tree/release/10.1](https://github.com/NVIDIA/TensorRT/tree/release/10.1)
+
+    ```
+    $ git clone https://github.com/NVIDIA/TensorRT.git
+    ```
+
+2. Install `polygraphy`
+
+    ```
+    $ pip install TensorRT/tools/Polygraphy/
+    ```
+    
+    check the installed version
+
+    ```
+    $ pip list | grep polygraphy
+    polygraphy 0.49.10
+    ```
+
+3. Install other dependencies
+
+    ```
+    $ pip install -e .[polygraphy]
+    ```
+
+#### Using `TensorRT` and `cuda-python`
+
 ```
 $ pip install -e .[tensorrt]
 ```
 
-### With Onnx
+### With Onnx 
 
-```
-$ pip install -e .[onnx]
-```
+- CPU only
+
+    ```
+    $ pip install -e .[onnx]
+    ```
+
+- GPU (cuda)
+
+    If you are using `CUDA 12.x`, please follow this [guide](https://onnxruntime.ai/docs/install/#install-onnx-runtime-cpu) to install `onnxruntime-gpu` first.
+
+    ```
+    $ pip install -e .[onnx-gpu]
+    ```
+    
 
 ### With OpenVINO
 

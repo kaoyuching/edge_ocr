@@ -39,8 +39,9 @@ setup(
     install_requires=get_requirements(['requirements/basic.txt']),
     extras_require={
         'onnx': get_requirements(['requirements/onnx.txt', 'requirements/basic.txt']),
+        'onnx-gpu': get_requirements(['requirements/onnx_gpu.txt', 'requirements/basic.txt']),
         'tensorrt': get_requirements(['requirements/tensorrt.txt', 'requirements/basic.txt']),
-        'polygraphy': get_requirements(['requirements/polygraphy.txt', 'requirements/tensorrt.txt', 'requirements/basic.txt']),
+        'polygraphy': get_requirements(['requirements/polygraphy.txt', 'requirements/basic.txt']),
         'openvino': get_requirements(['requirements/openvino.txt', 'requirements/basic.txt']),
     },
     packages=find_packages(exclude=['main']),

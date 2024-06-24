@@ -1,5 +1,7 @@
 python-dotenv==1.0.1
-pydantic==1.10.15
+pydantic
+pydantic_config
+pydantic_settings
 numpy==1.23.5
 packaging
 opencv-python

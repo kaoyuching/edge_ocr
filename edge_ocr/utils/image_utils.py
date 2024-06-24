@@ -17,7 +17,7 @@ def load_detect_image(img: Union[str, np.ndarray]):
     img = img/255.
     img = np.expand_dims(np.transpose(img, (2, 0, 1)), axis=0)  # (n, c, h, w)
     img_shape = img.shape[2:]
-    return img, img_orig_shape, img_shape
+    return img.astype(np.float32), img_orig_shape, img_shape
 
 
 # resize bounding box to fit original image size

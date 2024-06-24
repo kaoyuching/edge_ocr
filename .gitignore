@@ -9,6 +9,10 @@
 test/*.pkl
 build/*
 *.env*
+!example.env
+*.ini
+!example.ini
+*.toml
 *.onnx
 *.engine
 *.xml
