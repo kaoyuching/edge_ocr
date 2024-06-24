@@ -1,5 +1,5 @@
 #Cython>=3.0.10
-cuda-python==11.8.2
+cuda-python>=11.8.2
 # jetson nano orin
 tensorrt>=8.5.2
 # jetson nano orin: tensorrt==8.5.2
